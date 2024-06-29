@@ -1,23 +1,24 @@
-# Terraformブロックは使用するプロバイダーの要件を定義します
 terraform {
   required_providers {
     docker = {
-        # Dockerプロバイダーのソースとバージョンを指定
-        source = "kreuzwerker/docker"
-        version = "~> 3.0.1"
+      source  = "kreuzwerker/docker"
+      version = "~> 3.0.1"
     }
   }
 }
 
-# Dockerプロバイダーを宣言
 provider "docker" {}
 
-module "web" {
-  source = "./modules/nginx"
+resource "docker_image" "nginx" {
+  name         = "nginx:latest"
+  keep_locally = false
 }
 
-module "db" {
-  source = "./modules/mysql"
+resource "docker_container" "nginx" {
+  image = docker_image.nginx.image_id
+  name  = var.container_name
+  ports {
+    internal = 80
+    external = 8080
+  }
 }
-
-
